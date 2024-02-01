@@ -3,11 +3,11 @@
   "version": "1.0.0",
   "description": "A simple real-time chat application is written in the express js as a server and the react as a front-end library.",
   "workspaces": [
-    "app/*"
+    "apps/*"
   ],
   "scripts": {
-    "start:client": "cd app/client && react-scripts start",
-    "start:server": "cd app/server && nodemon server.js"
+    "start:client": "cd apps/client && react-scripts start",
+    "start:server": "cd apps/server && nodemon server.js"
   },
   "author": "Omid Farzadian",
   "license": "GNU v3.0"
