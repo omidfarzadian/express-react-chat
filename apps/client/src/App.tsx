@@ -1,9 +1,13 @@
-import './App.css';
+import './App.scss';
+import Login from './login/login';
+import { Socket, io } from 'socket.io-client';
 
-function App() {
+const socket = io('http://localhost:5000');
+
+export default function App() {
   return (
-    <div></div>
+    <div className="bg-zinc-200 w-screen h-screen flex items-center justify-center">
+      <Login socket={socket}/>
+    </div>
   );
 }
-
-export default App;
