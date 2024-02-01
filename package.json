@@ -1,0 +1,14 @@
+{
+  "name": "express-react-chat",
+  "version": "1.0.0",
+  "description": "A simple real-time chat application is written in the express js as a server and the react as a front-end library.",
+  "workspaces": [
+    "app/*"
+  ],
+  "scripts": {
+    "start:client": "cd app/client && react-scripts start",
+    "start:server": "cd app/server && nodemon server.js"
+  },
+  "author": "Omid Farzadian",
+  "license": "GNU v3.0"
+}
