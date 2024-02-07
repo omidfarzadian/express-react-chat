@@ -23,10 +23,15 @@ const io = new Server(server, {
 
 io.on(IO.Connection, (socket) => {
   // socketConnection(socket)
-  socket.on('user', args => {
-    console.log(args)
-  })
+  // socket.on('user', args => {
+  //   console.log(args)
+  // })
 });
+
+app.post('/login',(req, res) => {
+  console.log(req.body)
+  res.status(200).json({ message: 'Login successful' });
+})
 
 server.listen(port, () => {
   console.log(`Listening on port ${port}`);

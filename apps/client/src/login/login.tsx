@@ -1,25 +1,28 @@
 import { useState } from 'react';
 import './login.scss';
+import { loginUser } from './login.api';
 
-interface IUser {
+export interface IUser {
   username: string;
-  chatroom: string;
+  room: string;
 }
 
 export default function Login({ socket }: any) {
   const [username, setUsername] = useState('');
-  const [chatroom, setChatroom] = useState('');
+  const [room, setRoom] = useState('Room1');
 
   const onLoginUser = (e: any) => {
     e.preventDefault();
 
     const user: IUser = {
       username,
-      chatroom,
+      room,
     };
 
     console.log(user);
-    socket.emit('user', user);
+    loginUser(user).then((res) => {
+      console.log(res);
+    });
   };
 
   return (
@@ -41,24 +44,26 @@ export default function Login({ socket }: any) {
           type="text"
           name="username"
           id="username"
-          className="block w-full rounded-md border-0 py-1.5 px-2 text-zinc-900 ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-gray-400 sm:text-sm sm:leading-6"
+          className="block w-full h-10 rounded-lg border-0 py-1.5 px-2 text-zinc-900 ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-gray-400 sm:text-sm sm:leading-6"
           placeholder="user1234"
+          required
           value={username}
           onChange={(e) => setUsername(e.target.value)}
         />
       </div>
       <div className="flex flex-col gap-2">
         <label
-          htmlFor="chatroom"
+          htmlFor="room"
           className="block text-sm font-semibold leading-6 text-zinc-900"
         >
-          Chat room
+          Room
         </label>
         <select
-          id="chatroom"
-          className="block w-full rounded-md border-0 py-1.5 px-2 text-zinc-900 ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-gray-400 sm:text-sm sm:leading-6"
-          defaultValue={chatroom}
-          onChange={(e) => setChatroom(e.target.value)}
+          id="room"
+          className="block w-full h-10 rounded-lg border-0 py-1.5 px-2 text-zinc-900 ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-gray-400 sm:text-sm sm:leading-6"
+          required
+          value={room}
+          onChange={(e) => setRoom(e.target.value)}
         >
           <option value="room1">Room 1</option>
           <option value="room2">Room 2</option>
@@ -67,7 +72,7 @@ export default function Login({ socket }: any) {
       </div>
       <button
         type="submit"
-        className="flex w-full justify-center mt-4 rounded-md bg-indigo-600 px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+        className="flex w-full h-9 justify-center mt-4 rounded-lg bg-indigo-600 px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
       >
         Sign in
       </button>
