@@ -1,8 +1,0 @@
-services:
-  api:
-    commands:
-      - npm install
-    env:
-      DATABASE_URL: ${{DB_URL}}
-    ports:
-      - 3000

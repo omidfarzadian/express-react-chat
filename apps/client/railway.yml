@@ -1,9 +1,0 @@
-services:
-  frontend:
-    commands:
-      - npm install
-      - npm run build
-    env:
-      PORT: ${{SERVICE_PORT}}
-    ports:
-      - 3000
