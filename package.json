@@ -10,8 +10,12 @@
     "start:server": "cd apps/server && nodemon server.js",
     "build:client": "cd apps/client && react-scripts build",
     "build:server": "cd apps/server && npm install",
-    "build": "npm run build:client && npm run build:server"
+    "build": "npm run build:client && npm run build:server",
+    "start": "concurrently \"npm run start:client\" \"npm run start:server\""
   },
   "author": "Omid Farzadian",
-  "license": "GNU v3.0"
+  "license": "GNU v3.0",
+  "dependencies": {
+    "concurrently": "^8.2.2"
+  }
 }
