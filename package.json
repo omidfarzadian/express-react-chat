@@ -7,7 +7,10 @@
   ],
   "scripts": {
     "start:client": "cd apps/client && react-scripts start",
-    "start:server": "cd apps/server && nodemon server.js"
+    "start:server": "cd apps/server && nodemon server.js",
+    "build:client": "cd apps/client && react-scripts build",
+    "build:server": "cd apps/server && npm install",
+    "build": "npm run build:client && npm run build:server"
   },
   "author": "Omid Farzadian",
   "license": "GNU v3.0"
