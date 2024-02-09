@@ -1,17 +1,21 @@
-const { IO } = require('./models/enums');
-const { socketConnection } = require('./utils/socket');
+const { IOEvent } = require('./models/socket.enum');
+const {
+  socketConnection,
+  emitUsersInRoom,
+  joinChat,
+  sendMessage,
+  emitMessages,
+} = require('./utils/socket');
 
 require('dotenv').config();
 const port = process.env.PORT;
 
+const { Server } = require('socket.io');
 const http = require('http');
 const express = require('express');
 const cors = require('cors');
 
-const { Server } = require('socket.io');
-
-const app = express();
-app.use(cors());
+const app = express().use(cors());
 const server = http.createServer(app);
 
 const io = new Server(server, {
@@ -20,18 +24,13 @@ const io = new Server(server, {
   },
 });
 
-
-io.on(IO.Connection, (socket) => {
-  // socketConnection(socket)
-  // socket.on('user', args => {
-  //   console.log(args)
-  // })
+io.on(IOEvent.CONNECTION, async (socket) => {
+  socketConnection(socket);
+  joinChat(socket);
+  emitUsersInRoom(socket);
+  sendMessage(socket);
+  emitMessages(socket);
 });
-
-app.post('/login',(req, res) => {
-  console.log(req.body)
-  res.status(200).json({ message: 'Login successful' });
-})
 
 server.listen(port, () => {
   console.log(`Listening on port ${port}`);
