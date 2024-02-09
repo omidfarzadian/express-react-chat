@@ -1,34 +1,35 @@
 import { useState } from 'react';
-import './login.scss';
-import { loginUser } from './login.api';
-
-export interface IUser {
-  username: string;
-  room: string;
-}
+import { useNavigate } from 'react-router-dom';
+import { IOEvent, IOResponse } from '../models/socket.enum';
+import { IUser, UserStatus } from '../models/user.model';
 
 export default function Login({ socket }: any) {
-  const [username, setUsername] = useState('');
-  const [room, setRoom] = useState('Room1');
+  const [username, setUsername] = useState<string>('');
+  const [room, setRoom] = useState<string>('room_1');
+
+  const navigate = useNavigate();
 
   const onLoginUser = (e: any) => {
     e.preventDefault();
 
     const user: IUser = {
+      id: socket.id,
       username,
       room,
+      status: UserStatus.ONLINE,
     };
 
-    console.log(user);
-    loginUser(user).then((res) => {
-      console.log(res);
+    socket.emit(IOEvent.LOGIN, user);
+    socket.on(IOResponse.LOGIN_SUCCESS, (user: IUser) => {
+      sessionStorage.setItem('user', JSON.stringify(user));
+      navigate('/chat');
     });
   };
 
   return (
     <form
       onSubmit={(e) => onLoginUser(e)}
-      className="w-96 rounded-2xl p-8 bg-zinc-50 card-shadow flex gap-6 flex-col"
+      className="card w-96 flex gap-6 flex-col"
     >
       <title className="block text-2xl text-center font-bold leading-6 text-indigo-700 mb-12">
         Welcome!
@@ -65,9 +66,9 @@ export default function Login({ socket }: any) {
           value={room}
           onChange={(e) => setRoom(e.target.value)}
         >
-          <option value="room1">Room 1</option>
-          <option value="room2">Room 2</option>
-          <option value="room3">Room 3</option>
+          <option value="room_1">Room 1</option>
+          <option value="room_2">Room 2</option>
+          <option value="room_3">Room 3</option>
         </select>
       </div>
       <button
