@@ -1,5 +1,5 @@
 export interface IUser {
-  id: string;
+  id?: string;
   username: string;
   room: string;
   status: UserStatus;

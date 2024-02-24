@@ -1,6 +1,6 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { IOEvent, IOResponse } from '../models/socket.enum';
+import { IOEvent } from '../models/socket.enum';
 import { IUser, UserStatus } from '../models/user.model';
 
 export default function Login({ socket }: any) {
@@ -9,19 +9,22 @@ export default function Login({ socket }: any) {
 
   const navigate = useNavigate();
 
+  useEffect(() => {
+    sessionStorage.clear();
+  }, []);
+
   const onLoginUser = (e: any) => {
     e.preventDefault();
 
     const user: IUser = {
-      id: socket.id,
       username,
       room,
       status: UserStatus.ONLINE,
     };
 
-    socket.emit(IOEvent.LOGIN, user);
-    socket.on(IOResponse.LOGIN_SUCCESS, (user: IUser) => {
-      sessionStorage.setItem('user', JSON.stringify(user));
+    socket.emit(IOEvent.JOIN_CHAT, user);
+    socket.on(IOEvent.JOIN_CHAT, (newUser) => {
+      sessionStorage.setItem('user', JSON.stringify(newUser));
       navigate('/chat');
     });
   };
@@ -45,8 +48,9 @@ export default function Login({ socket }: any) {
           type="text"
           name="username"
           id="username"
-          className="block w-full h-10 rounded-lg border-0 py-1.5 px-2 text-zinc-900 ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-gray-400 sm:text-sm sm:leading-6"
+          className="block w-full h-10 rounded-lg border-0 py-1.5 px-2 text-zinc-900 ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-gray-400"
           placeholder="user1234"
+          autoComplete="off"
           required
           value={username}
           onChange={(e) => setUsername(e.target.value)}
@@ -61,7 +65,7 @@ export default function Login({ socket }: any) {
         </label>
         <select
           id="room"
-          className="block w-full h-10 rounded-lg border-0 py-1.5 px-2 text-zinc-900 ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-gray-400 sm:text-sm sm:leading-6"
+          className="block w-full h-10 rounded-lg border-0 py-1.5 px-2 text-zinc-900 ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-gray-400"
           required
           value={room}
           onChange={(e) => setRoom(e.target.value)}
@@ -73,7 +77,7 @@ export default function Login({ socket }: any) {
       </div>
       <button
         type="submit"
-        className="flex w-full h-9 justify-center mt-4 rounded-lg bg-indigo-600 px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+        className="flex w-full h-9 justify-center mt-4 rounded-lg bg-indigo-600 px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-indigo-500 "
       >
         Sign in
       </button>

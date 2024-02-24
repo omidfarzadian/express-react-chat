@@ -1,5 +1,5 @@
 import './chat.scss';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { IOEvent } from '../models/socket.enum';
 import { IUser, UserStatus } from '../models/user.model';
 import { IMessage } from '../models/message.model';
@@ -9,17 +9,18 @@ export default function Chat({ socket }: any) {
   const navigate = useNavigate();
   const [roomUsers, setRoomUsers] = useState<IUser[]>([]);
   const [audience, setAudience] = useState<string>('');
-  // const [messageHistory, setMessageHistory] = useState<IMessage[]>([]);
+  const [messageList, setMessageList] = useState<IMessage[]>([]);
   const [message, setMessage] = useState<string>('');
   const [currentUser, setCurrentUser] = useState<IUser>(
     JSON.parse(sessionStorage.getItem('user')),
   );
 
   useEffect(() => {
-    // setCurrentUser(JSON.parse(sessionStorage.getItem('user')));
-    if (currentUser === null) {
-      navigate('/');
+    setCurrentUser(JSON.parse(sessionStorage.getItem('user')));
+    if (!currentUser || !currentUser.id) {
+      return navigate('/');
     }
+
     socket
       .emit(IOEvent.ROOM_USERS, currentUser.room)
       .on(
@@ -34,15 +35,22 @@ export default function Chat({ socket }: any) {
       );
 
     socket
-      .emit(IOEvent.GET_MESSAGES, { user: currentUser, audience })
+      .emit(IOEvent.GET_MESSAGES, {
+        user: currentUser,
+        audience: audience.length ? audience : currentUser.room,
+      })
       .on(IOEvent.GET_MESSAGES, (messages) => {
-        // console.log(messages);
+        setMessageList(messages);
       });
 
-      return () => {
-        socket.off(IOEvent.ROOM_USERS);
-        socket.off(IOEvent.GET_MESSAGES);
-      };
+    socket.on(IOEvent.EXIT_CHAT, ({ users }: { users: IUser[] }) => {
+      setRoomUsers(users);
+    });
+
+    return () => {
+      socket.off(IOEvent.ROOM_USERS);
+      socket.off(IOEvent.GET_MESSAGES);
+    };
   }, []);
 
   function onSendMessage(e): void {
@@ -57,6 +65,21 @@ export default function Chat({ socket }: any) {
 
     socket.emit(IOEvent.SEND_MESSAGE, newMessage);
     setMessage('');
+  }
+
+  function formatMsgData(date: Date): string {
+    const hours = new Date(date).getHours();
+    const mins = new Date(date).getMinutes();
+
+    return `${String(hours).padStart(2, '0')}:${String(mins).padStart(2, '0')}`;
+  }
+
+  function onLeaveChat(e): void {
+    if (!window.confirm('Are you certain you wish to exit the chat?')) return;
+
+    socket.emit(IOEvent.EXIT_CHAT, currentUser).on(IOEvent.EXIT_CHAT, () => {
+      navigate('/');
+    });
   }
 
   return (
@@ -84,22 +107,57 @@ export default function Chat({ socket }: any) {
             </div>
           ))}
         </div>
+        <button
+          onClick={(e) => onLeaveChat(e)}
+          className="flex items-center h-9 justify-center rounded-lg mt-auto text-red-600 px-3 text-sm font-semibold hover:bg-red-200 "
+        >
+          Leave Chat
+        </button>
       </div>
-      <div className="card flex flex-col w-[45rem]">
+      <div className="card flex flex-col w-[45rem] gap-4">
+        <div
+          className="flex flex-col gap-3 overflow-auto"
+          style={{ scrollbarWidth: 'thin' }}
+        >
+          {messageList.map((msg) => (
+            <div
+              className={
+                msg.user.id === currentUser.id
+                  ? 'self-end w-1/2'
+                  : 'self-start w-1/2'
+              }
+            >
+              <div className="flex justify-between px-1 text-xs font-semibold text-zinc-500">
+                <span>{msg.user.username}</span>
+                <span>{formatMsgData(msg.date)}</span>
+              </div>
+              <div
+                className={
+                  msg.user.id === currentUser.id
+                    ? 'user-message'
+                    : 'audience-message'
+                }
+              >
+                {msg.message}
+              </div>
+            </div>
+          ))}
+        </div>
         <form onSubmit={(e) => onSendMessage(e)} className="flex gap-2 mt-auto">
           <input
             type="text"
             name="message"
             id="message"
-            className="block w-full h-9 rounded-lg border-0 py-1.5 px-2 text-zinc-900 ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-gray-400 sm:text-sm sm:leading-6"
+            className="block w-full h-9 rounded-lg border-0 py-1.5 px-2 text-zinc-900 ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-gray-400"
             placeholder="This is a placeholder"
+            autoComplete="off"
             required
             value={message}
             onChange={(e) => setMessage(e.target.value)}
           />
           <button
             type="submit"
-            className="flex items-center h-9 justify-center rounded-lg bg-indigo-600 px-3 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+            className="flex items-center h-9 justify-center rounded-lg bg-indigo-600 px-3 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 "
           >
             Send
           </button>

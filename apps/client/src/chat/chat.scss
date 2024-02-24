@@ -4,4 +4,12 @@
 
 .offline-indicator {
   @apply rounded-full size-2 border border-red-800 bg-red-500;
-} 
+}
+
+.user-message {
+  @apply bg-indigo-500 p-2 rounded-lg text-white w-full font-semibold break-words;
+}
+
+.audience-message {
+  @apply bg-zinc-200 p-2 rounded-lg text-zinc-900 w-full font-semibold break-words;
+}
