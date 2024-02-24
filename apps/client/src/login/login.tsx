@@ -10,15 +10,16 @@ export default function Login({ socket }: any) {
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (JSON.parse(sessionStorage.getItem('user')) !== null) {
+    const currentUser = JSON.parse(sessionStorage.getItem('user'));
+    if (currentUser && currentUser.id) {
       socket.emit(
         IOEvent.EXIT_CHAT,
-        JSON.parse(sessionStorage.getItem('user')),
+        currentUser,
       );
+      sessionStorage.clear();
     }
-    sessionStorage.clear();
-  }, []);
-
+  }, [socket]);
+  
   const onLoginUser = (e: any) => {
     e.preventDefault();
 

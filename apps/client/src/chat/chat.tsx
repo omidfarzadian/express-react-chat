@@ -79,6 +79,7 @@ export default function Chat({ socket }: any) {
 
     socket.emit(IOEvent.EXIT_CHAT, currentUser).on(IOEvent.EXIT_CHAT, () => {
       navigate('/');
+      sessionStorage.clear();
     });
   }
 
