@@ -10,6 +10,12 @@ export default function Login({ socket }: any) {
   const navigate = useNavigate();
 
   useEffect(() => {
+    if (JSON.parse(sessionStorage.getItem('user')) !== null) {
+      socket.emit(
+        IOEvent.EXIT_CHAT,
+        JSON.parse(sessionStorage.getItem('user')),
+      );
+    }
     sessionStorage.clear();
   }, []);
 
