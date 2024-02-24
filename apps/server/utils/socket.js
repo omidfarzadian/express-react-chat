@@ -1,54 +1,56 @@
-const { IOEvent, IOResponse } = require('../models/socket.enum');
+const { IOEvent } = require('../models/socket.enum');
 const { newMessage, getMessages } = require('./message');
-const { loginUser, getUsersInRoom } = require('./user');
+const { userJoin, getUsersInRoom, userExit } = require('./user');
 
-function socketConnection(socket) {
-  // console.log('User connected. SocketID:', socket.id);
-}
+function joinChat(io, socket) {
+  socket.on(IOEvent.JOIN_CHAT, async (newUser) => {
+    const user = userJoin(newUser);
 
-function joinChat(socket) {
-  //TODO: Refactor socket.js and maybe implement another approach
-  socket.on(IOEvent.LOGIN, (user) => {
-    const errorMessage = loginUser(user);
-    if (errorMessage) {
-      socket.emit(IOResponse.LOGIN_FAILURE, { message });
-      return;
-    }
-
-    socket.emit(IOResponse.LOGIN_SUCCESS, user)
-    socket.emit(IOEvent.ROOM_USERS, {
+    await socket.join(user.room);
+    await socket.emit(IOEvent.JOIN_CHAT, user);
+    await io.to(user.room).emit(IOEvent.ROOM_USERS, {
       room: user.room,
       users: getUsersInRoom(user.room),
     });
   });
 }
 
-function emitUsersInRoom(socket) {
+function emitRoomUsers(socket) {
   socket.on(IOEvent.ROOM_USERS, (room) => {
     socket.emit(IOEvent.ROOM_USERS, { room, users: getUsersInRoom(room) });
   });
 }
 
-function sendMessage(socket) {
-  socket.on(IOEvent.SEND_MESSAGE, (messageData) => {
+function sendMessage(io, socket) {
+  socket.on(IOEvent.SEND_MESSAGE, async (messageData) => {
     newMessage(messageData);
-    socket.emit(
-      IOEvent.GET_MESSAGES,
-      getMessages(messageData.user, messageData.audience),
-    );
+    await socket.join(messageData.audience);
+    await io
+      .to(messageData.audience)
+      .emit(IOEvent.GET_MESSAGES, getMessages(messageData.audience));
   });
 }
 
 function emitMessages(socket) {
-  socket.on(IOEvent.GET_MESSAGES, ({ user, audience }) => {
-    socket.emit(IOEvent.GET_MESSAGES, getMessages(user, audience));
+  socket.on(IOEvent.GET_MESSAGES, ({ audience }) => {
+    socket.emit(IOEvent.GET_MESSAGES, getMessages(audience));
+  });
+}
+
+function exitChat(io, socket) {
+  socket.on(IOEvent.EXIT_CHAT, async (user) => {
+    userExit(user);
+    await socket.join(user.room);
+    await io.to(user.room).emit(IOEvent.EXIT_CHAT, {
+      users: getUsersInRoom(user.room),
+    });
   });
 }
 
 module.exports = {
-  socketConnection,
   joinChat,
-  emitUsersInRoom,
   sendMessage,
   emitMessages,
+  emitRoomUsers,
+  exitChat,
 };

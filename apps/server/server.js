@@ -5,6 +5,8 @@ const {
   joinChat,
   sendMessage,
   emitMessages,
+  emitRoomUsers,
+  exitChat,
 } = require('./utils/socket');
 
 require('dotenv').config();
@@ -25,11 +27,11 @@ const io = new Server(server, {
 });
 
 io.on(IOEvent.CONNECTION, async (socket) => {
-  socketConnection(socket);
-  joinChat(socket);
-  emitUsersInRoom(socket);
-  sendMessage(socket);
+  joinChat(io, socket);
+  emitRoomUsers(socket);
+  sendMessage(io, socket);
   emitMessages(socket);
+  exitChat(io, socket);
 });
 
 server.listen(port, () => {
