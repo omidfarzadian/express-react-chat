@@ -11,7 +11,7 @@
     "start:server": "cd apps/server && nodemon server.js"
   },
   "author": "Omid Farzadian",
-  "license": "GNU v3.0",
+  "license": "MIT",
   "dependencies": {
     "concurrently": "^8.2.2"
   }
