@@ -85,7 +85,7 @@ export default function Chat({ socket }: any) {
 
   return (
     <div className="flex gap-8 h-[35rem]">
-      <div className="card w-64 flex flex-col gap-4">
+      <div className="card w-40 sm:w-48 md:w-52 lg:w-56 xl:w-64 flex flex-col gap-4">
         <title className="block text-xl text-start font-bold leading-6 text-indigo-700">
           Users
         </title>
@@ -115,7 +115,7 @@ export default function Chat({ socket }: any) {
           Leave Chat
         </button>
       </div>
-      <div className="card flex flex-col w-[45rem] gap-4">
+      <div className="card flex flex-col w-100 sm:w-120 md:w-140 lg:w-160 xl:w-180 gap-4">
         <div
           className="flex flex-col gap-3 overflow-auto"
           style={{ scrollbarWidth: 'thin' }}
