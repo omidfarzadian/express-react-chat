@@ -4,7 +4,7 @@ import Login from './login/login';
 import Chat from './chat/chat';
 import { io } from 'socket.io-client';
 
-const socket = io('http://localhost:5000');
+const socket = io('http://localhost:3200');
 
 export default function App() {
   return (
